@@ -36,6 +36,52 @@ class Sparse_Set
     else { return 0; }
   }
 
+  template <std::size_t Recursion_Depth = 0>
+  void Compare_And_Promote(const Entity Placement, const Location_Set Locations)
+  {
+    constexpr auto R =             Recursion_Depth;
+    const Index Bitmask_Square =   std::get<R>(Locations);
+    const std::size_t Bitmask_ID = S[ Bitmask_Square ];
+    
+    if constexpr (R != 2)
+    { 
+      Entity Next_Placement;
+      Location_Set Next_Placement_Locations;
+      
+      if (Bitmask_Square > (Count + 1u))        //Should be possible to remove this check for R=0, under some conditions
+      { 
+        S[Count + 1u] =             Placement;
+        S[Placement] =              Count + 1u;
+        Count++;
+        return;
+      }
+
+      else if (Bitmask_ID < Placement)
+      {
+        S[Bitmask_ID] =             Bitmask_Square;
+        Next_Placement =            Placement;
+        Next_Placement_Locations =  Locations;
+      }
+
+      else
+      {
+        S[Bitmask_Square] =         Placement;
+        S[Placement] =              Bitmask_Square;
+        Next_Placement =            Bitmask_ID;
+        Next_Placement_Locations =  Internal_Find_Locations(Next_Placement);
+      }
+      Compare_And_Promote<R+1>(Next_Placement, Next_Placement_Locations);
+    }
+
+    if constexpr (R == 2)
+    {
+      S[Count + 1u] = Placement;
+      S[Placement] =  Count + 1u;
+      Count++;
+      return;
+    }
+  }
+
   inline void Internal_Update_Bitmasks()
   {
     // checks if the next empty square in our array has reached a new order of magnitude
@@ -57,14 +103,25 @@ class Sparse_Set
   public:
     Sparse_Set() : S {0} {}
 
-    Entity Add(const Entity& ID) 
+    void Add(const Entity& ID) 
     { 
       auto ID_Locations = Internal_Find_Locations(ID);
       Index Result = Confirm_Entity_Exists(ID, ID_Locations);
 
-      if (Result != 0) { return ID; }
+      if (Result != 0) { } //TODO: Will return T[Result]
+      if (Count == N) { throw "[Add Function]: Error - Array bounds were allowed to overflow\n"; }
 
-      else { throw "[Add function]: not yet implemented"; }
+      Compare_And_Promote<0>(ID, ID_Locations);
+      Internal_Update_Bitmasks();
+
+      //TEMPORARY LOGIC
+      ID_Locations = Internal_Find_Locations(ID);
+      Result = Confirm_Entity_Exists(ID, ID_Locations); //Redundant extra checks -> To be phased out
+      std::cout << "Result: " << Result << '\n';
+      //END TEMP LOGIC
+
+      //Will return T[Result]
+      throw "[Add function]: not yet implemented\n";
     }
 
   private:

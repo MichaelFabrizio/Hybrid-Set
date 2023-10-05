@@ -7,7 +7,7 @@ endif()
 
 project(prog)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 add_executable(prog main.cpp)
