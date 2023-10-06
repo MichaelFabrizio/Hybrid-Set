@@ -3,13 +3,17 @@
 #include <tuple>
 
 template <typename T, std::size_t N>
-class Sparse_Set
+class Hybrid_Set
 {
   typedef std::size_t Entity;
   typedef std::size_t Index;
   typedef std::tuple<Index, Index, Index> Location_Set;
 
-  inline Location_Set Internal_Find_Locations(const Entity& EntityID)
+  inline bool ID_Exists_Left_Zone(const Entity& EntityID) { 
+    return (EntityID < Next_Empty) ? true : false;
+  }
+
+  inline Location_Set Find_Locations(const Entity& EntityID)
   {
     Location_Set locations;
     
@@ -21,19 +25,18 @@ class Sparse_Set
     return locations;
   }
 
-  inline Index Confirm_Entity_Exists(const Entity& ID, const Location_Set& locations)
+  inline Index Find_Exact_Location(const Entity& ID)
   {
-    auto Entity_0 = S[ std::get<0>(locations) ]; //   The entity which exists at Index = (EntityID & Old_Bitmask)
-    auto Entity_1 = S[ std::get<1>(locations) ]; //   The entity which exists at Index = (EntityID & New_Bitmask)
-    auto Entity_2 = S[ std::get<2>(locations) ]; //   This works differently, it returns S[S[EntityID]], which outputs Index=0 if the entity was not found,
-                                                 //   Note: Index 0 is always a null entity and cannot be assigned.
-                                                 //   ...Otherwise, Returns the exact square where the entity is found.
+    Index INDEX_0 = ID & Old_Bitmask;
+    Index INDEX_1 = ID & Level_Bitmask;
 
-    if (Entity_0 == ID)  { return std::get<0>(locations); }
-    if (Entity_1 == ID)  { return std::get<1>(locations); }
-    if (Entity_2 != 0)   { return std::get<2>(locations); }
-    
-    else { return 0; }
+    if        (ID_Exists_Left_Zone(ID)) { return ID;      }
+    else if   (S[INDEX_0] == ID)        { return INDEX_0; }
+    else if   (S[INDEX_1] == ID)        { return INDEX_1; }
+
+    Index INDEX_2 = S[ID];                                  // Can be more expensive to find, check saved for last
+    if (INDEX_2 != 0)                   { return INDEX_2; } // INDEX_2 = Last place to find
+    else                                { return 0; }       // Final case: Not found
   }
 
   template <std::size_t Recursion_Depth = 0>
@@ -68,7 +71,7 @@ class Sparse_Set
         S[Bitmask_Square] =         Placement;
         S[Placement] =              Bitmask_Square;
         Next_Placement =            Bitmask_ID;
-        Next_Placement_Locations =  Internal_Find_Locations(Next_Placement);
+        Next_Placement_Locations =  Find_Locations(Next_Placement);
       }
       Compare_And_Promote<R+1>(Next_Placement, Next_Placement_Locations);
     }
@@ -101,23 +104,23 @@ class Sparse_Set
   }
 
   public:
-    Sparse_Set() : S {0} {}
+    Hybrid_Set() : S {0} { static_assert(128 <= N <= 256, "Array size restricted currently\n" ); }
 
     void Add(const Entity& ID) 
     { 
-      auto ID_Locations = Internal_Find_Locations(ID);
-      Index Result = Confirm_Entity_Exists(ID, ID_Locations);
+      Index Result = Find_Exact_Location(ID);
 
-      if (Result != 0) { } //TODO: Will return T[Result]
+      if (Result != 0) { return; } //TODO: Will return T[Result]
       if (Count == N) { throw "[Add Function]: Error - Array bounds were allowed to overflow\n"; }
 
+      auto ID_Locations = Find_Locations(ID);
       Compare_And_Promote<0>(ID, ID_Locations);
       Internal_Update_Bitmasks();
 
       //TEMPORARY LOGIC
-      ID_Locations = Internal_Find_Locations(ID);
-      Result = Confirm_Entity_Exists(ID, ID_Locations); //Redundant extra checks -> To be phased out
-      std::cout << "Result: " << Result << '\n';
+       Result = Find_Exact_Location(ID);
+       std::cout << "Result: " << Result << '\n';
+       if (Result == 0) { throw "[Add Function]: Result shouldn't be zero anymore!\n"; }
       //END TEMP LOGIC
 
       //Will return T[Result]
@@ -125,11 +128,11 @@ class Sparse_Set
     }
 
   private:
-    // T Elements[N];        //Contiguous array of objectstd::get<0>(ID_Locations)s
-    std::size_t S[N];        //Sparse array of entity IDs
+    // T Elements[N];                     //Contiguous array of objects
+    std::size_t S[N];                     //Sparse array of entity IDs
 
-    std::size_t Count = 0u;  //Count represents the number of entities
-                             //ALSO: Count + 1u represents the next "empty" element in our set.
+    std::size_t Count = 0u;               //Count represents the number of entities
+    std::size_t Next_Empty = Count + 1u;  //Count + 1u represents the next "empty" element in our set.
     
     std::size_t Level = 5u;                              
     std::size_t Get_Next_Level = 1u << Level;           

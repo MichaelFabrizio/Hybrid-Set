@@ -1,12 +1,12 @@
 #include <iostream>
-#include <Sparse_Set.h>
+#include <Hybrid_Set.h>
 
 struct Test_Component { int value = 5; };
 
 int main()
 {
   try{
-    Sparse_Set<Test_Component, 64> pool;
+    Hybrid_Set<Test_Component, 64> pool;
     pool.Add(5);
   }
   catch (const char* Error)
