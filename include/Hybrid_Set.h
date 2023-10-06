@@ -9,7 +9,7 @@ class Hybrid_Set
   typedef std::size_t Index;
   typedef std::tuple<Index, Index, Index> Location_Set;
 
-  inline bool ID_Exists_Left_Zone(const Entity& EntityID) { 
+  inline bool ID_Exists_On_Left(const Entity& EntityID) { 
     return (EntityID < Next_Empty) ? true : false;
   }
 
@@ -30,65 +30,72 @@ class Hybrid_Set
     Index INDEX_0 = ID & Old_Bitmask;
     Index INDEX_1 = ID & Level_Bitmask;
 
-    if        (ID_Exists_Left_Zone(ID)) { return ID;      }
+    if        (ID_Exists_On_Left(ID))   { return ID;      }
     else if   (S[INDEX_0] == ID)        { return INDEX_0; }
     else if   (S[INDEX_1] == ID)        { return INDEX_1; }
 
-    Index INDEX_2 = S[ID];                                  // Can be more expensive to find, check saved for last
-    if (INDEX_2 != 0)                   { return INDEX_2; } // INDEX_2 = Last place to find
+    Index LAST = S[ID];
+    Index INDEX_2 = (LAST != 0) ? LAST : 0;                 // Can be more expensive to find, check saved for last
+    
+    if (S[INDEX_2] == ID)               { return INDEX_2; } // INDEX_2 = Last place to find
     else                                { return 0; }       // Final case: Not found
   }
 
-  template <std::size_t Recursion_Depth = 0>
-  void Compare_And_Promote(const Entity Placement, const Location_Set Locations)
+  inline Entity Conditional_Place(const Entity& ID)
   {
-    constexpr auto R =             Recursion_Depth;
-    const Index Bitmask_Square =   std::get<R>(Locations);
-    const std::size_t Bitmask_ID = S[ Bitmask_Square ];
-    
-    if constexpr (R != 2)
+    const auto Candidate_Index = ID & Level_Bitmask;
+
+    if (Candidate_Index < Next_Empty)
     { 
-      Entity Next_Placement;
-      Location_Set Next_Placement_Locations;
-      
-      if (Bitmask_Square > (Count + 1u))        //Should be possible to remove this check for R=0, under some conditions
-      { 
-        S[Count + 1u] =             Placement;
-        S[Placement] =              Count + 1u;
-        Count++;
-        return;
-      }
-
-      else if (Bitmask_ID < Placement)
+      const auto Previous_ID = S[Candidate_Index];
+      if (Previous_ID < ID)
       {
-        S[Bitmask_ID] =             Bitmask_Square;
-        Next_Placement =            Placement;
-        Next_Placement_Locations =  Locations;
+        return ID;
       }
-
       else
       {
-        S[Bitmask_Square] =         Placement;
-        S[Placement] =              Bitmask_Square;
-        Next_Placement =            Bitmask_ID;
-        Next_Placement_Locations =  Find_Locations(Next_Placement);
+        S[Candidate_Index] = ID;
+        auto Next_ID = Conditional_Place(Previous_ID);
+        return Next_ID;
       }
-      Compare_And_Promote<R+1>(Next_Placement, Next_Placement_Locations);
     }
+    return ID;
+  }
 
-    if constexpr (R == 2)
+  template <std::size_t R = 0>
+  inline void Place(const Entity& ID)
+  {
+    if constexpr (R == 0) {
+      if (ID_Exists_On_Left(ID))        // Add a limit on this recursion branch. TODO: Refactor into a Conditional_Place_Lefthanded method.
+      {
+        const auto Previous_ID = S[ID];
+        S[ID] = ID;
+        Place<R>(Previous_ID);
+      }
+      else
+      {
+        Place<R+1>(ID);
+      }
+    }
+    if constexpr(R == 1)
     {
-      S[Count + 1u] = Placement;
-      S[Placement] =  Count + 1u;
+      const auto Next_ID = Conditional_Place(ID);
+      Place<R+1>(Next_ID);
+    }
+    if constexpr(R == 2)
+    {
+      S[Next_Empty] = ID;
+      S[ID] = Next_Empty;
       Count++;
-      return;
+      Next_Empty++;
+      Internal_Update_Bitmasks();
     }
   }
 
   inline void Internal_Update_Bitmasks()
   {
     // checks if the next empty square in our array has reached a new order of magnitude
-    std::size_t Next_Level_Bool = ((Count + 1u) & Get_Next_Level) >> Level;
+    std::size_t Next_Level_Bool = ((Next_Empty) & Get_Next_Level) >> Level;
 
     //temporary: ensure output is always 1u or 0u, (output must always be 1u or 0u)
     if (Next_Level_Bool > 1u) { throw "next_level_bool weird output"; }
@@ -105,26 +112,32 @@ class Hybrid_Set
 
   public:
     Hybrid_Set() : S {0} { static_assert(128 <= N <= 256, "Array size restricted currently\n" ); }
+   ~Hybrid_Set() {};
+    Hybrid_Set(const Hybrid_Set& H) = delete;
+    Hybrid_Set& operator=(const Hybrid_Set&  H) = delete;
+    Hybrid_Set& operator=(const Hybrid_Set&& H) = delete;
 
     void Add(const Entity& ID) 
     { 
-      Index Result = Find_Exact_Location(ID);
-
-      if (Result != 0) { return; } //TODO: Will return T[Result]
-      if (Count == N) { throw "[Add Function]: Error - Array bounds were allowed to overflow\n"; }
-
-      auto ID_Locations = Find_Locations(ID);
-      Compare_And_Promote<0>(ID, ID_Locations);
-      Internal_Update_Bitmasks();
+      if (ID == 0) { return; } //TODO: Return 0
+      if (ID >= N) { return; } //Also return 0;
+      if (Next_Empty == N) { throw "[Add Function]: Error - Array bounds were allowed to overflow\n"; }
+      Place<0>(ID);
 
       //TEMPORARY LOGIC
-       Result = Find_Exact_Location(ID);
-       std::cout << "Result: " << Result << '\n';
+       Index Result = Find_Exact_Location(ID);
        if (Result == 0) { throw "[Add Function]: Result shouldn't be zero anymore!\n"; }
       //END TEMP LOGIC
 
       //Will return T[Result]
-      throw "[Add function]: not yet implemented\n";
+    }
+
+    void Debug() 
+    { 
+      for (std::size_t i=0; i!=N; i++)
+      {
+        std::cout << "Index: " << i << " Element: " << S[i] << '\n';
+      }
     }
 
   private:
@@ -134,7 +147,7 @@ class Hybrid_Set
     std::size_t Count = 0u;               //Count represents the number of entities
     std::size_t Next_Empty = Count + 1u;  //Count + 1u represents the next "empty" element in our set.
     
-    std::size_t Level = 5u;                              
+    std::size_t Level = 4u;                              
     std::size_t Get_Next_Level = 1u << Level;           
     std::size_t Get_Current_Level = 1u << (Level - 1u);
     std::size_t Level_Bitmask = Get_Next_Level - 1u;
