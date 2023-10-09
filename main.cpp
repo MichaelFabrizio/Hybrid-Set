@@ -7,7 +7,13 @@ int main()
 {
   try{
     Hybrid_Set<Test_Component, 64> pool;
-    pool.Add(5);
+
+    for (std::size_t i = 63; i != 0; i--)
+    {
+      std::cout << "i: " << i << " ";
+      pool.Add(i);
+    }
+    pool.Debug();
   }
   catch (const char* Error)
   {
