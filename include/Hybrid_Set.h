@@ -66,7 +66,7 @@ class Hybrid_Set
       std::cout << "ID: " << ID << '\n';
       std::cout << "Masked place: " << Candidate_Index << '\n';
       S[Candidate_Index] = ID;
-      Place_R2(Candidate_Owner); //Optional Feature: Call Place_R1 here instead
+      Place_R1(Candidate_Owner); //Optional Feature: Call Place_R2 here instead (w/ extra checks)
     }
   }
 
@@ -80,32 +80,25 @@ class Hybrid_Set
     
     if (Next_Empty_ID_Pointer != 0)
     {
-      if (Next_Empty == ID) { std::cout << "Already exists!\n"; return; }
-      S[Next_Empty] = Next_Empty;
-      S[Next_Empty_ID_Pointer] = ID;
-      S[ID] = Next_Empty_ID_Pointer;
-    std::cout << "Endpoint Swap and place: " << Next_Empty_ID_Pointer << '\n';
+      S[Next_Empty] = ID;
+      std::cout << "Endpoint Exact place: " << ID << '\n';
+      Count++;
+      Next_Empty++;
+      Internal_Update_Bitmasks();
+      return;
     }
     else if (Next_Empty_Bitmask_Value == Next_Empty)
     {
       S[Next_Empty] = Next_Empty;
       S[Next_Empty_Bitmask_Pointer] = ID;
       S[ID] = Next_Empty_Bitmask_Pointer;
-    std::cout << "Endpoint Bitmask-Swap and place: " << Next_Empty_Bitmask_Pointer << '\n';
+      std::cout << "Endpoint Bitmask-Swap and place: " << Next_Empty_Bitmask_Pointer << '\n';
     }
     else
     {
-      if (Next_Empty == ID)
-      {
-    std::cout << "Endpoint Exact place: " << Next_Empty << '\n';
-        S[Next_Empty] = ID;
-      }
-      else
-      {
-    std::cout << "Endpoint Index place: " << Next_Empty << '\n';
-        S[Next_Empty] = ID;
-        S[ID] = Next_Empty;
-      }
+      std::cout << "Endpoint Index place: " << Next_Empty << '\n';
+      S[Next_Empty] = ID;
+      S[ID] = Next_Empty;
     }
     
     Count++;

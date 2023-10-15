@@ -8,11 +8,12 @@ int main()
   try{
     Hybrid_Set<Test_Component, 64> pool;
 
-    for (std::size_t i = 63; i != 0; i--)
+    for (std::size_t i = 63; i > 0;)
     {
-      std::cout << "i: " << i << " ";
       pool.Add(i);
+      i = i - 3;
     }
+
     pool.Debug();
   }
   catch (const char* Error)
