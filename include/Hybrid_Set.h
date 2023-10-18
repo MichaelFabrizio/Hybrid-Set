@@ -106,15 +106,46 @@ class Hybrid_Set
     Internal_Update_Bitmasks();
   }
 
+  inline void Swap_And_Remove_Last_Entity(const Entity ID)
+  {
+    std::cout << "Removing ID: " << ID << '\n';
+    const auto Last_ID_Value = S[Count];
+
+    S[ID] = Last_ID_Value;
+    if (Last_ID_Value != Count)
+    {
+      S[Last_ID_Value] = ID;
+    }
+    S[Count] = 0u;
+
+    Count--;
+    Next_Empty--;
+    Downgrade_Bitmasks();
+  }
+
   inline void Internal_Update_Bitmasks()
   {
-    std::size_t Next_Level_Bool = ((Next_Empty) & Get_Next_Level) >> Level;
+    std::size_t Next_Level_Reached = (Next_Empty & Get_Next_Level) >> Level;
 
-    if (Next_Level_Bool > 1u) { throw "next_level_bool weird output"; }
+    if (Next_Level_Reached > 1u) { throw "next_level_bool weird output"; }
 
-    else if (Next_Level_Bool)     {
+    else if (Next_Level_Reached)     {
       Old_Bitmask = Level_Bitmask;
       Level++;
+      Get_Next_Level = 1u << Level;
+      Get_Current_Level = 1u << (Level - 1u);
+      Level_Bitmask = Get_Next_Level - 1u;
+    }
+  }
+
+  inline void Downgrade_Bitmasks()
+  {
+    std::size_t Previous_Level_NOT_Reached = (Count & Get_Current_Level) >> (Level - 1u);
+    if (Previous_Level_NOT_Reached > 1u) { throw "previous_level_bool weird output"; }
+
+    else if (!Previous_Level_NOT_Reached)     {
+      Old_Bitmask = Level_Bitmask;
+      Level--;
       Get_Next_Level = 1u << Level;
       Get_Current_Level = 1u << (Level - 1u);
       Level_Bitmask = Get_Next_Level - 1u;
@@ -149,7 +180,17 @@ class Hybrid_Set
       //Will return T[Result]
     }
 
-    void Remove(const Entity& ID) { throw "Not yet implemented\n"; }
+    void Remove(const Entity& ID) 
+    { 
+      if (ID_Exists_On_Left(ID) && (S[ID] == ID)) { Swap_And_Remove_Last_Entity(ID); }
+      else
+      {
+        const auto Index = Find_Exact_Location(ID);
+        if (Index == 0u) { std::cout << "ID not found\n"; return; }
+
+        Swap_And_Remove_Last_Entity(Index);
+      }
+    }
 
     void Debug() 
     { 

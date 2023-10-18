@@ -11,7 +11,12 @@ int main()
     for (std::size_t i = 63; i > 0;)
     {
       pool.Add(i);
-      i = i - 3;
+      i--;
+    }
+
+    for (std::size_t i = 27; i < 35; i++)
+    {
+      pool.Remove(i);
     }
 
     pool.Debug();
