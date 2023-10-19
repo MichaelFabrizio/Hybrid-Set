@@ -1,11 +1,13 @@
 #pragma once
 #include <iostream>
 
-template <typename T, std::size_t N>
+template <typename T, std::size_t Max_Size>
 class Hybrid_Set
 {
   typedef std::size_t Entity;
   typedef std::size_t Index;
+
+  const static std::size_t Starting_Level = 2u;
 
   inline bool ID_Exists_On_Left(const Entity& EntityID) { 
     return (EntityID < Next_Empty) ? true : false;
@@ -30,8 +32,8 @@ class Hybrid_Set
   inline void Place_R0(const Entity ID, const bool Direction)
   {
     if (Direction) { 
-    std::cout << "ID: " << ID << '\n';
-    std::cout << "Left Place" << '\n';
+    // std::cout << "ID: " << ID << '\n';
+    // std::cout << "Left Place" << '\n';
       const auto ID_To_Swap = S[ID];
       S[ID] = ID;
       
@@ -63,8 +65,8 @@ class Hybrid_Set
     }
     else
     {
-      std::cout << "ID: " << ID << '\n';
-      std::cout << "Masked place: " << Candidate_Index << '\n';
+      // std::cout << "ID: " << ID << '\n';
+      // std::cout << "Masked place: " << Candidate_Index << '\n';
       S[Candidate_Index] = ID;
       Place_R1(Candidate_Owner); //Optional Feature: Call Place_R2 here instead (w/ extra checks)
     }
@@ -73,7 +75,7 @@ class Hybrid_Set
   inline void Place_R2(const Entity ID)
   {
     
-    std::cout << "ID: " << ID << '\n';
+    // std::cout << "ID: " << ID << '\n';
     const auto Next_Empty_ID_Pointer = S[Next_Empty];
     const auto Next_Empty_Bitmask_Pointer = Next_Empty & Old_Bitmask;
     const auto Next_Empty_Bitmask_Value = S[Next_Empty_Bitmask_Pointer];
@@ -81,7 +83,7 @@ class Hybrid_Set
     if (Next_Empty_ID_Pointer != 0)
     {
       S[Next_Empty] = ID;
-      std::cout << "Endpoint Exact place: " << ID << '\n';
+      // std::cout << "Endpoint Exact place: " << ID << '\n';
       Count++;
       Next_Empty++;
       Internal_Update_Bitmasks();
@@ -92,11 +94,11 @@ class Hybrid_Set
       S[Next_Empty] = Next_Empty;
       S[Next_Empty_Bitmask_Pointer] = ID;
       S[ID] = Next_Empty_Bitmask_Pointer;
-      std::cout << "Endpoint Bitmask-Swap and place: " << Next_Empty_Bitmask_Pointer << '\n';
+      // std::cout << "Endpoint Bitmask-Swap and place: " << Next_Empty_Bitmask_Pointer << '\n';
     }
     else
     {
-      std::cout << "Endpoint Index place: " << Next_Empty << '\n';
+      // std::cout << "Endpoint Index place: " << Next_Empty << '\n';
       S[Next_Empty] = ID;
       S[ID] = Next_Empty;
     }
@@ -106,17 +108,20 @@ class Hybrid_Set
     Internal_Update_Bitmasks();
   }
 
-  inline void Swap_And_Remove_Last_Entity(const Entity ID)
+  inline void Swap_And_Remove_Last_Entity(const Entity ID, const Index ID_Index)
   {
-    std::cout << "Removing ID: " << ID << '\n';
+    // std::cout << "Removing ID: " << ID << '\n';
+    // std::cout << "ID Location: " << ID_Index << '\n';
+
     const auto Last_ID_Value = S[Count];
 
-    S[ID] = Last_ID_Value;
+    S[ID_Index] = Last_ID_Value;
     if (Last_ID_Value != Count)
     {
       S[Last_ID_Value] = ID;
+      S[Count] = 0u;
     }
-    S[Count] = 0u;
+    else { S[Count] = ID_Index; }
 
     Count--;
     Next_Empty--;
@@ -153,7 +158,7 @@ class Hybrid_Set
   }
 
   public:
-    Hybrid_Set() : S {0} { static_assert(128 <= N <= 256, "Array size restricted currently\n" ); } //For some reason static assert isn't working
+    Hybrid_Set() : S {0} { static_assert(128 <= Max_Size <= 256, "Array size restricted currently\n" ); } //For some reason static assert isn't working
    ~Hybrid_Set() {};
     Hybrid_Set(const Hybrid_Set& H) = delete;
     Hybrid_Set& operator=(const Hybrid_Set&  H) = delete;
@@ -165,8 +170,8 @@ class Hybrid_Set
 
       if (ID == 0) { return; } //TODO: Return 0
       if (ID > 0xFFFF) { std::cout << "Underflow ID detected\n"; return; } //Extra checks for testing purposes; Also return 0
-      if (ID >= N) { std::cout << "Overflow ID detected\n"; return; } //return 0
-      if (Next_Empty == N) { throw "Array bounds overflow detected\n"; }
+      if (ID >= Max_Size) { std::cout << "Overflow ID detected\n"; return; } //return 0
+      if (Next_Empty == Max_Size) { throw "Array bounds overflow detected\n"; }
       
       Place_R0(ID, direction);
 
@@ -174,7 +179,7 @@ class Hybrid_Set
        Index Result = Find_Exact_Location(ID);
 
        if (Result == 0) { throw "[Add Function]: Result shouldn't be zero anymore!\n"; }
-       if (Result > (N-1)) { throw "[Add Function]: Critical index overflow error.\n"; }
+       if (Result > (Max_Size-1)) { throw "[Add Function]: Critical index overflow error.\n"; }
       //END TEMP LOGIC
 
       //Will return T[Result]
@@ -182,20 +187,38 @@ class Hybrid_Set
 
     void Remove(const Entity& ID) 
     { 
-      if (ID_Exists_On_Left(ID) && (S[ID] == ID)) { Swap_And_Remove_Last_Entity(ID); }
+      if (ID == 0u) { return; }
+      auto Possible_Index = ID;
+
+      if (ID_Exists_On_Left(ID) && (S[ID] == ID)) { Swap_And_Remove_Last_Entity(ID, Possible_Index); }
       else
       {
-        const auto Index = Find_Exact_Location(ID);
-        if (Index == 0u) { std::cout << "ID not found\n"; return; }
+        Possible_Index = Find_Exact_Location(ID); //Implicitly an exact match at this point (or the Null Entity 0)
+        if (Possible_Index == 0u) { std::cout << "ID not found\n"; return; }
 
-        Swap_And_Remove_Last_Entity(Index);
+        Swap_And_Remove_Last_Entity(ID, Possible_Index);
       }
+    }
+
+    void Clear()
+    {
+      //RESET EVERYTHING
+      for (Index i = 0u; i < Max_Size; i++) { S[i] = 0u; }
+      //for (auto ID : T) { T[ID] = __; //Nullptr? Basic first instance? }
+      //RESET THESE TOO
+      Count = 0u;
+      Next_Empty = Count + 1u;
+      Level = Starting_Level;
+      Get_Next_Level = 1u << Level;           
+      Get_Current_Level = 1u << (Level - 1u);
+      Level_Bitmask = Get_Next_Level - 1u;
+      Old_Bitmask = Get_Current_Level - 1u;
     }
 
     void Debug() 
     { 
       std::cout << "Index variables start at: " << Next_Empty << '\n';
-      for (std::size_t i=0; i!=N; i++)
+      for (std::size_t i=0; i!=Max_Size; i++)
       {
         std::cout << "Index: " << i << " Element: " << S[i] << '\n';
       }
@@ -203,12 +226,12 @@ class Hybrid_Set
 
   private:
     // T Elements[N];                     //Contiguous array of objects
-    std::size_t S[N];                     //Sparse array of entity IDs
+    std::size_t S[Max_Size];              //Sparse array of entity IDs
 
     std::size_t Count = 0u;               //Count represents the number of entities
     std::size_t Next_Empty = Count + 1u;  //Count + 1u represents the next "empty" element in our set.
     
-    std::size_t Level = 2u;                              
+    std::size_t Level = Starting_Level;                              
     std::size_t Get_Next_Level = 1u << Level;           
     std::size_t Get_Current_Level = 1u << (Level - 1u);
     std::size_t Level_Bitmask = Get_Next_Level - 1u;

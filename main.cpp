@@ -14,11 +14,19 @@ int main()
       i--;
     }
 
-    for (std::size_t i = 27; i < 35; i++)
+    for (std::size_t i = 0; i < 40; i++)
     {
       pool.Remove(i);
     }
-
+    pool.Add(25);
+    pool.Add(1);
+    pool.Add(2);
+    pool.Add(3);
+    pool.Add(4);
+    pool.Add(5);
+    pool.Add(10);
+    pool.Add(12);
+    // pool.Clear();
     pool.Debug();
   }
   catch (const char* Error)
