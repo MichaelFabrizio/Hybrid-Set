@@ -4,6 +4,8 @@ Author: Mike Fabrizio
 
 Submission for the 2023 Algorand Global Hackathon
 
+Warning - Experimental - May contain indexing errors. Use with caution.
+
 ## Table of Contents
 
 * [A Fast Iteration & Random Access Container](#A-Fast-Iteration-&-Random-Access-Container)
