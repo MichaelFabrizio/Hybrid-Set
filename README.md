@@ -9,6 +9,9 @@ Warning - Experimental - May contain index errors. Use with caution.
 ## Table of Contents
 
 * [A Fast Iteration & Random Access Container](#A-Fast-Iteration-&-Random-Access-Container)
+* [The Problem For Web3 Gaming](#The-Problem-For-Web3-Gaming)
+* [Verifying Game Data (Memory)](#Verifying-Game-Data)
+* [Introducing The HSet](#Introducing-The-Hset)
 * [How It Works](#How-It-Works)
 * [Demo](#Demo)
 * [Roadmap](#Roadmap)
@@ -46,6 +49,62 @@ Their work greatly aided my understanding of these design problems.
 One thing I would like to add before continuing: 
 I believe Sparse Sets are themselves very capable containers. They have O(1) Lookup, Add, Remove... Which is really great! To be clear, all memory layouts are a matter of compromise.
 
+
+## The Problem For Web3 Gaming
+
+Let's start with a definition for Web3 Gaming:
+
+**Web3 Gaming** - A multiplayer environment where *players* are *rewarded* for their *participation*.
+
+
+How can we reward participation? That is fundamentally the question we must answer. With today's games having near endless complexity,
+we need a way to **verify** *exactly* what is happening in-game (Game State).
+
+In other words, there *must* be a *Bridge of data* between the Blockchain Layer (verified, trustless), and the Game Data Layer* (**unverified, untrusted**).
+
+
+
+
+
+
+
+Unfortunately, there is a weakest link for our data-bridge. 
+We need to **publish events** to the blockchain, except those **events** are **game events**, which are inherently **untrusted**.
+
+
+A malicious player could spoof any data they wanted. **This is a huge problem**.
+
+**Q**: How do we prevent a malicious hacker from FALSLY CLAIMING they achieved something.
+**Example**: The hacker CLAIMS they defeated a fire dragon. **Did they actually?** Are you about to give them a **potentially RARE** Web3 token or NFT, without verifying if it's true?
+
+**A**: We *need* to *verify* by a (honest) voting committee that what the player CLAIMS is true. We only give rewards *after* confirming they told the truth.
+
+
+## Verifying Game Data
+
+Imagine our goal is to build a modern Web3 game. How will that look *In Practice*?
+
+Well, let's consider a modern FPS and the possibilities. We'd likely find:
+
+-*Different weapons, armors, loadouts, perks*
+-*Character levels, unique skins, crafting*
+-*Competitive and unranked type gameplay*
+
+All of which is represented *somewhere* in memory. 
+
+
+Ok, yada yada, so what's the point?
+
+Literally **every question** we need to ask about **what happened in our game**, is ultimately **stored some place in memory**.
+
+Either our memory is extremely fast, *or the entire data-bridge is made slower*.
+
+
+## Introducing The HSet
+
+![alt text][HSet]
+
+[HSet]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Simplified.png "Hybrid Set"
 
 ## How It Works
 Soon!

@@ -34,10 +34,8 @@ bld/
 [Ll]ogs/
 build/
 extern/
-References/
 ./build
 ./extern
-./References
 
 # Visual Studio 2015/2017 cache/options directory
 .vs/
