@@ -4,7 +4,12 @@ Author: Mike Fabrizio
 
 Submission for the 2023 Algorand Global Hackathon
 
-Warning - Experimental - May contain index errors. Use with caution. 
+Warning - Use with caution. May contain index errors (still needs auditing).
+
+![alt text][Banner]
+
+[Banner]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/Hackathon_Banner.png "OpenGL rendering"
+
 
 ## Table of Contents
 
@@ -22,7 +27,7 @@ Warning - Experimental - May contain index errors. Use with caution.
 
 
 ## A Fast Iteration And Random Access Container
-
+-----------------------------------------------
 The goal of my work is to empower Web3 Gaming. There is however, an inescable problem. Memory implementation really matters.
 
 We can now provide a direct bridge from the game data layer to the Web 3 layer, so that we can precisely and quickly reward players for positive achievements in game.
@@ -55,7 +60,7 @@ I believe Sparse Sets are themselves very capable containers. They have O(1) Loo
 
 
 ## The Problem For Web3 Gaming
-
+------------------------------
 Let's start with a definition for Web3 Gaming:
 
 **Web3 Gaming** - A multiplayer environment where *players* are *rewarded* for their *participation*.
@@ -75,16 +80,20 @@ In other words, there *must* be a *Bridge of data* between the Blockchain Layer 
 Unfortunately, there is a weakest link for our data-bridge. 
 We need to **publish events** to the blockchain, except those **events** are **game events**, which are inherently **untrusted**.
 
-
+#### Stopping Cheaters
+----------------------
 A malicious player could spoof any data they wanted. **This is a huge problem**.
 
-**Q**: How do we prevent a malicious hacker from FALSLY CLAIMING they achieved something.
-**Example**: The hacker CLAIMS they defeated a fire dragon. **Did they actually?** Are you about to give them a **potentially RARE** Web3 token or NFT, without verifying if it's true?
+* **Q**: How do we prevent a malicious hacker from FALSLY CLAIMING they achieved something.
+* **Example**: The hacker CLAIMS they defeated a fire dragon. **Did they actually?** 
+Are you about to give them a **potentially RARE** Web3 token or NFT, without verifying if it's true?
 
-**A**: We *need* to *verify* by a (honest) voting committee that what the player CLAIMS is true. We only give rewards *after* confirming they told the truth.
+* **A**: We *need* to *verify* by a (honest) voting committee that what the player CLAIMS is true. 
+We only give rewards *after* confirming they told the truth.
 
 
-## Verifying Game Data
+#### Verifying Game Data
+------------------------
 
 Imagine our goal is to build a modern Web3 game. How will that look *In Practice*?
 
@@ -105,7 +114,7 @@ Either our memory is extremely fast, *or the entire data-bridge is made slower*.
 
 
 ## Introducing The HSet
-
+-----------------------
 ![alt text][HSet]
 
 [HSet]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Simplified.png "Hybrid Set"
@@ -138,7 +147,6 @@ What does this looks like in practice?
 We can easily access all data, and this is reliably fast in all cases.
 
 #### Example) Lookup:
----------------------
 
 An HSet stores the **character IDs** as **keys** themselves to find relevant data. For example:
 
@@ -153,7 +161,6 @@ Player_Armor.Calculate_Damages();    // Just for example :)
 ```
 
 #### Example) Add:
-------------------
 
 ```
 // We assign a default armor to character ID = 2
@@ -171,10 +178,10 @@ The private HSet.Place() Method is, necessarily, the most important logic with t
 otherwise we've completely invalidated the (Top Array) data structure.
 
 #### Example) Remove, Clear
----------------------------
 Not yet implemented.
 
 ### Highest Optimization Approach
+---------------------------------
 
 ![alt text][HSetBestCase]
 
@@ -191,6 +198,7 @@ In other words, the data structure is *fastest* under two easily satisfied condi
 
 
 ### The Null Entity 0
+---------------------
 
 Regarding the lack of pointer stability, there is one exception: ID = 0 yields **only stable pointer in the structure**.
 Why is this relevant? This data could represent, for example, the armor on a player character, and it will always be accessible via pointer or the Get(0) method:
@@ -204,17 +212,23 @@ player_armor.Active_Magic_Spell(Protection);
 Not yet implemented. 
 
 ### Compression
+---------------
 
+There is compression in the private demo version only.
 
 ## How It Works
+---------------
 Soon!
 
 ### The Placement Method
+------------------------
 
 ## Demo
+-------
 Soon!
 
 ## Roadmap
+----------
 
 | ***Future Roadmap***                       | *Timeline*   |
 |--------------------------------------------|--------------|
@@ -225,7 +239,6 @@ Soon!
 | 3D Rendering Engine Layer                  | TBD          |
 
 ## Collaboration
+----------------
 
 I'm happy to collaborate further. Let's make our Web3 dreams a reality. Contact me on twitter @Learn\_Anew.
-
-
