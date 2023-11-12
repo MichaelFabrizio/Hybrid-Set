@@ -8,16 +8,20 @@ Warning - Experimental - May contain index errors. Use with caution.
 
 ## Table of Contents
 
-* [A Fast Iteration & Random Access Container](#A-Fast-Iteration-&-Random-Access-Container)
+* [A Fast Iteration & Random Access Container](#A-Fast-Iteration-And-Random-Access-Container)
 * [The Problem For Web3 Gaming](#The-Problem-For-Web3-Gaming)
 * [Verifying Game Data (Memory)](#Verifying-Game-Data)
 * [Introducing The HSet](#Introducing-The-Hset)
+* [Highest Optimization Approach](#Highest-Optimization-Approach)
+* [The Null Entity 0](#The-Null-Entity-0)
+* [Compression](#Compression)
 * [How It Works](#How-It-Works)
 * [Demo](#Demo)
 * [Roadmap](#Roadmap)
+* [Collaboration](#Collaboration)
 
 
-## A Fast Iteration & Random Access Container
+## A Fast Iteration And Random Access Container
 
 The goal of my work is to empower Web3 Gaming. There is however, an inescable problem. Memory implementation really matters.
 
@@ -27,7 +31,7 @@ When representing data there will always be trade offs in memory efficiency. Thi
 It takes significant inspiration from the Sparse Set model which is very well documented. 
 
 For information about Sparse Sets or ECS, I highly recommend the blogs of EnTT creator skypjack [here](https://skypjack.github.io/ "EnTT blog"),
-as well as the writings of Stefan Reinalter at [blog.molecular-matters.com](blog.molecular-matters.com "Molecule Engine blog").
+as well as the writings of Stefan Reinalter at the [Molecule Engine's Blog](https://blog.molecular-matters.com "Molecule Engine blog").
 Their work greatly aided my understanding of these design problems.
 
 
@@ -113,8 +117,8 @@ The H-Set is a double array structure.
 -----------------
 - Contains the data itself
 - It is contiguous, therefore it has perfect cache locality and O(N) iteration for N elements
-- Data is "unordered", (although it can achieve perfect ordering: see [Highest Optimization Approach](###Highest-Optimization-Approach))
-- There is no pointer stability. Any pointers to data may be invalidated after any data change. There is one exception to pointer stability: see [The Null Entity 0](###The-Null-Entity-0))
+- Data is "unordered", (although it can achieve perfect ordering: see [Highest Optimization Approach](#Highest-Optimization-Approach))
+- There is no pointer stability. Any pointers to data may be invalidated after any data change. There is one exception to pointer stability: see [The Null Entity 0](#The-Null-Entity-0))
 
 ### The Bottom Array
 --------------------
@@ -126,7 +130,9 @@ The H-Set is a double array structure.
 
 What does this looks like in practice?
 
-[HSet_Filled]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Filled.png "In Practice"
+![alt text][HSetFill]
+
+[HSetFill]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Filled.png "In Practice"
 
 
 We can easily access all data, and this is reliably fast in all cases.
@@ -170,8 +176,9 @@ Not yet implemented.
 
 ### Highest Optimization Approach
 
-![alt text][HSet_BestCase]
-[HSet_BestCase]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Best_Case.png "Best case scenario"
+![alt text][HSetBestCase]
+
+[HSetBestCase]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Best_Case.png "Best case scenario"
 
 The fastest use-case is when all numbers are in sequence. This provides a direct link of **<Key, Value>** pairings for each number.
 
@@ -216,4 +223,9 @@ Soon!
 | Rewards System                             | 1-2 year     |
 | Accurate Anti-Cheat Web3 Lobbies           | 1-2 years    |
 | 3D Rendering Engine Layer                  | TBD          |
+
+## Collaboration
+
+I'm happy to collaborate further. Let's make our Web3 dreams a reality. Contact me on twitter @Learn\_Anew.
+
 
