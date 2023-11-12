@@ -86,9 +86,9 @@ Imagine our goal is to build a modern Web3 game. How will that look *In Practice
 
 Well, let's consider a modern FPS and the possibilities. We'd likely find:
 
--*Different weapons, armors, loadouts, perks*
--*Character levels, unique skins, crafting*
--*Competitive and unranked type gameplay*
+- *Different weapons, armors, loadouts, perks*
+- *Character levels, unique skins, crafting*
+- *Competitive and unranked type gameplay*
 
 All of which is represented *somewhere* in memory. 
 
@@ -106,8 +106,103 @@ Either our memory is extremely fast, *or the entire data-bridge is made slower*.
 
 [HSet]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Simplified.png "Hybrid Set"
 
+
+The H-Set is a double array structure. 
+
+### The Top Array
+-----------------
+- Contains the data itself
+- It is contiguous, therefore it has perfect cache locality and O(N) iteration for N elements
+- Data is "unordered", (although it can achieve perfect ordering: see [Highest Optimization Approach](###Highest-Optimization-Approach))
+- There is no pointer stability. Any pointers to data may be invalidated after any data change. There is one exception to pointer stability: see [The Null Entity 0](###The-Null-Entity-0))
+
+### The Bottom Array
+--------------------
+- Contains the *indexes* to the data itself (used for lookup operations)
+- Uses a sorting & promoting algorithm that I designed: see [Placement Method](###The-Placement-Method))
+- Optimized to be as compact as possible
+- Pageable memory
+
+
+What does this looks like in practice?
+
+[HSet_Filled]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Filled.png "In Practice"
+
+
+We can easily access all data, and this is reliably fast in all cases.
+
+#### Example) Lookup:
+---------------------
+
+An HSet stores the **character IDs** as **keys** themselves to find relevant data. For example:
+
+Suppose we are representing many sets of armor:
+
+```
+HSet<ArmorType, 64> ArmorSet;        // Storage for 64 pieces of armor data (on the stack)
+
+auto Player_Armor = ArmorSet.Get(0); // Suppose we know some ID = 0 representing our player character
+
+Player_Armor.Calculate_Damages();    // Just for example :)
+```
+
+#### Example) Add:
+------------------
+
+```
+// We assign a default armor to character ID = 2
+
+Entity ID = 2;
+ArmorSet.Add(ID)
+
+// Alternatively a method to deploy a constructed piece of armor with arguments
+
+Entity ID = 2;
+ArmorSet.Add(ID, 12, 31) //Ex: Defense stat 12, Magic Defense stat 31
+```
+
+The private HSet.Place() Method is, necessarily, the most important logic with the HSet data structure. Indices must be placed *very specifically*, 
+otherwise we've completely invalidated the (Top Array) data structure.
+
+#### Example) Remove, Clear
+---------------------------
+Not yet implemented.
+
+### Highest Optimization Approach
+
+![alt text][HSet_BestCase]
+[HSet_BestCase]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Best_Case.png "Best case scenario"
+
+The fastest use-case is when all numbers are in sequence. This provides a direct link of **<Key, Value>** pairings for each number.
+
+Furthermore, the data structure is self-assembling: *As it fills more completely, the indices find their natural ordering*.
+
+
+In other words, the data structure is *fastest* under two easily satisfied conditions:
+- When completely filled
+- When adding numbers sequentially from 0 (so long as nothing is later removed from that set)
+
+
+### The Null Entity 0
+
+Regarding the lack of pointer stability, there is one exception: ID = 0 yields **only stable pointer in the structure**.
+Why is this relevant? This data could represent, for example, the armor on a player character, and it will always be accessible via pointer or the Get(0) method:
+
+```
+ArmorType * player_armor = Armor.Get(0); // Valid to store this pointer (for as long as the HSet lifetime is valid)
+
+player_armor.Active_Magic_Spell(Protection);
+```
+
+Not yet implemented. 
+
+### Compression
+
+
 ## How It Works
 Soon!
+
+### The Placement Method
 
 ## Demo
 Soon!
