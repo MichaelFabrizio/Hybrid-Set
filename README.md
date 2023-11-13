@@ -1,4 +1,4 @@
-# Hybrid Memory - A solution to Web3 Gaming architecture
+# Hybrid Memory - A data solution for Web3 + Entity Component Systems
 
 Author: Mike Fabrizio
 
@@ -35,24 +35,20 @@ We can now provide a direct bridge from the game data layer to the Web 3 layer, 
 When representing data there will always be trade offs in memory efficiency. This container is no different. However, the trade-offs are quite acceptable given the other benefits. 
 It takes significant inspiration from the Sparse Set model which is very well documented. 
 
-For information about Sparse Sets or ECS, I highly recommend the blogs of EnTT creator skypjack [here](https://skypjack.github.io/ "EnTT blog"),
-as well as the writings of Stefan Reinalter at the [Molecule Engine's Blog](https://blog.molecular-matters.com "Molecule Engine blog").
-Their work greatly aided my understanding of these design problems.
 
-
-| ***Memory Access Features***               | *Sparse Set* | *Hybrid Set*   |
-|--------------------------------------------|--------------|----------------|
-| Fastest N Element Iteration                | O(N)         | O(N)           |
-| Very Fast Lookup                           | O(1)         | O(1 - Const)   |
-| Contiguous                                 | **✓**        | **✓**          |
-| Composition Architecture                   | **✓**        | **✓**          |
-| Integers Lookup                            | **✓**        | **✓**          |
-| Pageable memory                            | **✓**        | **✓**          |
-| High Cache Locality                        | Usually      | **✓** Always   |
-| Auditable Data Structure                   | Maybe        | **✓** Always   |
-| Memory Compression                         | Maybe        | **✓** Optional |
-| Pointer Stability                          | Maybe        |   ✘            |
-| Self Ordering (Promotion algorithm)        | ✘            | **✓**          |
+| ***Memory Access Features***               | *Sparse Set* | *Hybrid Set*    |
+|--------------------------------------------|--------------|-----------------|
+| Fastest N Element Iteration                | O(N)         | O(N)            |
+| Very Fast Lookup                           | O(1)         | O(1 - Const)    |
+| Contiguous                                 | **✓**        | **✓**           |
+| Composition Architecture                   | **✓**        | **✓**           |
+| Integers Lookup                            | **✓**        | **✓**           |
+| Pageable memory                            | **✓**        | **✓**           |
+| High Cache Locality                        | Usually      | **✓** `Always`  |
+| Auditable Data Structure                   | Maybe        | **✓** `Always`  |
+| Memory Compression                         | Maybe        | **✓** `Optional`|
+| Pointer Stability                          | Maybe        |   ✘             |
+| Self Ordering (Promotion algorithm)        | ✘            | **✓**           |
 
 
 One thing I would like to add before continuing: 
@@ -72,9 +68,9 @@ we need a way to **verify** *exactly* what is happening in-game (Game State).
 In other words, there *must* be a *Bridge of data* between the Blockchain Layer (verified, trustless), and the Game Data Layer* (**unverified, untrusted**).
 
 
+![alt text][Bridge]
 
-
-
+[Bridge]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/Vote_Committee.png "Bridge Of Data"
 
 
 Unfortunately, there is a weakest link for our data-bridge. 
@@ -120,7 +116,7 @@ Either our memory is extremely fast, *or the entire data-bridge is made slower*.
 [HSet]: https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/HSet_Simplified.png "Hybrid Set"
 
 
-The H-Set is a double array structure. 
+The H-Set is a double array structure with these properties:
 
 ### The Top Array
 -----------------
@@ -152,7 +148,7 @@ An HSet stores the **character IDs** as **keys** themselves to find relevant dat
 
 Suppose we are representing many sets of armor:
 
-```
+```c++
 HSet<ArmorType, 64> ArmorSet;        // Storage for 64 pieces of armor data (on the stack)
 
 auto Player_Armor = ArmorSet.Get(0); // Suppose we know some ID = 0 representing our player character
@@ -162,7 +158,7 @@ Player_Armor.Calculate_Damages();    // Just for example :)
 
 #### Example) Add:
 
-```
+```c++
 // We assign a default armor to character ID = 2
 
 Entity ID = 2;
@@ -216,16 +212,15 @@ Not yet implemented.
 
 There is compression in the private demo version only.
 
-## How It Works
+## How It Works - Placement
 ---------------
 Soon!
 
-### The Placement Method
-------------------------
-
 ## Demo
 -------
-Soon!
+- **ADDING HALF RANDOM DATA**
+
+https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/DemoRendering/Half-Random-Data.mov
 
 ## Roadmap
 ----------
@@ -238,7 +233,14 @@ Soon!
 | Accurate Anti-Cheat Web3 Lobbies           | 1-2 years    |
 | 3D Rendering Engine Layer                  | TBD          |
 
-## Collaboration
-----------------
+#### Decentralization
+The working plan is to provide a "standardized" way for voting parties to reach consensus on Game State and Algorand State.
+
+#### Collaboration
+------------------
+
+For information about Sparse Sets or ECS, I highly recommend the blogs of EnTT creator skypjack [here](https://skypjack.github.io/ "EnTT blog"),
+as well as the writings of Stefan Reinalter at the [Molecule Engine's Blog](https://blog.molecular-matters.com "Molecule Engine blog").
+Their work greatly aided my understanding of these design problems.
 
 I'm happy to collaborate further. Let's make our Web3 dreams a reality. Contact me on twitter @Learn\_Anew.
