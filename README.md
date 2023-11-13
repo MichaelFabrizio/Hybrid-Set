@@ -219,7 +219,7 @@ Soon!
 ## Demo
 -------
 
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/PRYaIJNHNfU/0.jpg)](http://www.youtube.com/watch?v=PRYaIJNHNfU "Hybrid Memory")
+[![DemoVideo](https://github.com/MichaelFabrizio/Hybrid-Set/raw/main/References/Images/Demo_Thumbnail.png)](https://youtu.be/PRYaIJNHNfU?si=eWV9xCzo4dmd-xQd "DEMO!!!")
 
 ## Roadmap
 ----------
