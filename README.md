@@ -20,8 +20,8 @@ Warning - Use with caution. May contain index errors (still needs auditing).
 * [Highest Optimization Approach](#Highest-Optimization-Approach)
 * [The Null Entity 0](#The-Null-Entity-0)
 * [Compression](#Compression)
-* [How It Works](#How-It-Works)
 * [Demo](#Demo)
+* [How It Works](#How-It-Works)
 * [Roadmap](#Roadmap)
 * [Collaboration](#Collaboration)
 
@@ -44,10 +44,10 @@ It takes significant inspiration from the Sparse Set model which is very well do
 | Composition Architecture                   | **✓**        | **✓**           |
 | Integers Lookup                            | **✓**        | **✓**           |
 | Pageable memory                            | **✓**        | **✓**           |
-| High Cache Locality                        | Usually      | **✓** `Always`  |
-| Auditable Data Structure                   | Maybe        | **✓** `Always`  |
-| Memory Compression                         | Maybe        | **✓** `Optional`|
-| Pointer Stability                          | Maybe        |   ✘             |
+| High Cache Locality                        | `Maybe`      | **✓** `Always`  |
+| Auditable Data Structure                   | `Maybe`      | **✓** `Always`  |
+| Memory Compression                         | `Maybe`      | **✓** `Optional`|
+| Pointer Stability                          | `Maybe`      |   ✘             |
 | Self Ordering (Promotion algorithm)        | ✘            | **✓**           |
 
 
