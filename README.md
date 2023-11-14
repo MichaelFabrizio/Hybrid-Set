@@ -4,7 +4,10 @@ Author: Mike Fabrizio
 
 Submission for the 2023 Algorand Global Hackathon
 
-Warning - Use with caution. May contain index errors (still needs auditing).
+Final edit.
+Using locked branch '2023\_Hackathon to hold the current state.
+11/14/23 Status: Needs Auditing
+
 
 ![alt text][Banner]
 
@@ -128,7 +131,7 @@ The H-Set is a double array structure with these properties:
 ### The Bottom Array
 --------------------
 - Contains the *indexes* to the data itself (used for lookup operations)
-- Uses a sorting & promoting algorithm that I designed: see [Placement Method](###The-Placement-Method))
+- Uses a sorting & promoting algorithm that I designed: check out the (future) wiki!
 - Optimized to be as compact as possible
 - Pageable memory
 
@@ -208,13 +211,12 @@ player_armor.Active_Magic_Spell(Protection);
 Not yet implemented. 
 
 ### Compression
----------------
 
 There is compression in the private demo version only.
 
-## How It Works - Placement
----------------
-Soon!
+### How It Works - Placement, Removal, Compression etc.
+Future Wiki Entries. 
+
 
 ## Demo
 -------
